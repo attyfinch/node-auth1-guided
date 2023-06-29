@@ -16,7 +16,18 @@ router.post('/register', async (req, res, next) => {
 });
 
 router.post('/login', async (req, res, next) => {
-    res.json({message: "login is working!"})
+    try {
+        const { username, password } = req.body;
+        const [user] = await User.findBy({ username })
+        if (user && bcrypt.compareSync(password, user.password)) {
+            req.session.user = user
+            res.json({message: `Welcomem back ${username}!`})
+        } else {
+            next({ status: 401, message: "you're session has been blocked"})
+        }
+    } catch (err) {
+
+    }
 });
 
 router.get('/logout', async (req, res, next) => {
